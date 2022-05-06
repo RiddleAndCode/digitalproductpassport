@@ -13,15 +13,30 @@ producer, buyer, reseller = generate_keypair(), generate_keypair(), generate_key
 
 asset = {
     'data': {
+        "GTIN":{
+            "GIAI":"(8004)9010381300003022",
+            "ManufacturingSerialID":"141-09-061",
+            "RefurbishmentLotNumber":"EHZ COMPOUND MnEDH",
+            "ManufacturingLotID":"'L ' SBBVI-30",
+            "DataMatrix":"ipld:QmRPa4pQRPQeEKUUktkonkpG8EUZUgufw415Jxd3t4VNQm"
+        },
         "Certificate": {
         "A03": "0000001",
         "A01": {
-            "CompanyName": "voestalpine Krems GmbH",
+            "CompanyName": "voestalpine Weichensysteme GmbH",
             "AddressLine": "Schmidhüttenstrasse 5",
-            "ZipCode": "3500",
-            "City": "Krems",
+            "ZipCode": "8740",
+            "City": "Zeltweg",
             "Country": "AT",
             "VAT_Id": "U36909609"
+        },
+        "A06": {
+            "CompanyName": "König Stahl Sp.z.o.o",
+            "Street": "Cybernetyki 10",
+            "ZipCode": "02-677",
+            "City": "Warszawa",
+            "Country": "PL",
+            "VAT_Id": "5270103379"
         },
         "B01": "EN10025",
         "B02": "S275J2H",
@@ -48,10 +63,21 @@ asset = {
 }
 
 metadata = {
-    'units': 300,
+    'units': '300',
+    'carbonOffset': '560',
     'type': 'KG'
 }
 
+# alternatively asset as ipld link
+
+'''
+    asset = {
+    'ns': "ipld.bigchaindb.com",
+    'did': "did:ipld:QmSvFxoRrJnd1r8N28U7DcEfKmSgSZvDgdDj7JLMP74PMX,type=blinded-zenroom-cid",
+    'blindKeyPath': 'm/"SLIP-0021"/"Authentication key":47194e938ab24cc82bfa25f6486ed54bebe79c40ae2a5a32ea6db294d81861a6'
+
+ }
+'''
 
 server = 'https://test.ipdb.io'
 api = 'api/v1/transactions'
