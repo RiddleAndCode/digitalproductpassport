@@ -107,6 +107,7 @@ transfer_asset = {
     'id': asset_id
 }
 
+# 1st transaction of 5 kg
 output_index = 0
 output = asset_tx['outputs'][output_index]
 
@@ -137,6 +138,49 @@ fulfilled_transfer_tx = plmnt.transactions.fulfill(
 )
 
 sent_transfer_tx = plmnt.transactions.send_commit(fulfilled_transfer_tx)
+
+print( f"\nAsset transfer to reseller: {server}/{api}/{sent_transfer_tx['id']}")
+
+print("\nIs the reseller the owner?",
+    sent_transfer_tx['outputs'][0]['public_keys'][0] == reseller.public_key)
+
+print("Was the producer the previous owner?",
+    fulfilled_transfer_tx['inputs'][0]['owners_before'][0] == producer.public_key)
+
+
+# 2nd transaction of 15 kg
+
+output_index = 1
+output = sent_transfer_tx['outputs'][output_index]
+transfer_input = {
+    'fulfillment': output['condition']['details'],
+    'fulfills': {
+        'output_index': output_index,
+        'transaction_id': sent_transfer_tx['id']
+    },
+    'owners_before': output['public_keys']
+}
+
+metadata = {
+    'units': 15,
+    'type': 'KG'
+}
+prepared_transfer_tx = plmnt.transactions.prepare(
+    operation='TRANSFER',
+    asset=transfer_asset,
+    inputs=transfer_input,
+    metadata=metadata,
+    recipients= [([reseller.public_key],150),([producer.public_key], 2800), ]
+)
+
+fulfilled_transfer_tx = plmnt.transactions.fulfill(
+    prepared_transfer_tx,
+    private_keys=producer.private_key,
+)
+
+sent_transfer_tx = plmnt.transactions.send_commit(fulfilled_transfer_tx)
+
+
 print( f"\nAsset transfer to reseller: {server}/{api}/{sent_transfer_tx['id']}")
 
 print("\nIs the reseller the owner?",
