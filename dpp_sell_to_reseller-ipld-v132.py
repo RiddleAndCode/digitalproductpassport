@@ -1,5 +1,6 @@
 from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
+from ipld import multihash, marshal
 
 # create wallets for all involved parties
 
@@ -12,7 +13,7 @@ producer, buyer, reseller = generate_keypair(), generate_keypair(), generate_key
 # create certificate
 
 asset = {
-    'data': {
+    'data': multihash(marshal({
         "GTIN":{
             "GIAI":"(8004)9010381300003022",
             "ManufacturingSerialID":"141-09-061",
@@ -59,14 +60,14 @@ asset = {
         "C93": "0.3361",
         "Z02": "2019-05-30T09:30:10-01:00"
         }
-    }
+    }))
 }
 
-metadata = {
+metadata = multihash(marshal({
     'units': '300',
     'carbonOffset': '560',
     'type': 'KG'
-}
+}))
 
 # alternatively asset as ipld link
 
@@ -81,7 +82,7 @@ metadata = {
 
 server = 'https://test.ipdb.io'
 #server = 'http://localhost:9984'
-#server = 'https://node1-testnet.rddl.io'
+#server = 'http://node1-rddl-testnet.twilightparadox.com:9984'
 api = 'api/v1/transactions'
 plmnt = Planetmint(server)
 
@@ -89,13 +90,14 @@ prepared_token_tx = plmnt.transactions.prepare(
             operation='CREATE',
             signers=producer.public_key,
             recipients=[([producer.public_key], 3000)],
-            asset=asset,
+            assets=[asset],
             metadata=metadata)
 
 signed_asset_creation = plmnt.transactions.fulfill(
             prepared_token_tx,
             private_keys=producer.private_key)
 
+print( f"TX: {signed_asset_creation['id']}" )
 response = plmnt.transactions.send_commit(signed_asset_creation)
 
 
@@ -122,13 +124,13 @@ transfer_input = {
     'owners_before': output['public_keys']
 }
 
-metadata = {
+metadata = multihash(marshal({
     'units': 5,
     'type': 'KG'
-}
+}))
 prepared_transfer_tx = plmnt.transactions.prepare(
     operation='TRANSFER',
-    asset=transfer_asset,
+    assets=[asset_id],
     inputs=transfer_input,
     metadata=metadata,
     recipients= [([reseller.public_key], 50),([producer.public_key], 2950), ]
@@ -138,7 +140,6 @@ fulfilled_transfer_tx = plmnt.transactions.fulfill(
     prepared_transfer_tx,
     private_keys=producer.private_key,
 )
-
 sent_transfer_tx = plmnt.transactions.send_commit(fulfilled_transfer_tx)
 
 print( f"\nAsset transfer to reseller: {server}/{api}/{sent_transfer_tx['id']}")
@@ -163,13 +164,13 @@ transfer_input = {
     'owners_before': output['public_keys']
 }
 
-metadata = {
+metadata = multihash(marshal({
     'units': 15,
     'type': 'KG'
-}
+}))
 prepared_transfer_tx = plmnt.transactions.prepare(
     operation='TRANSFER',
-    asset=transfer_asset,
+    assets=[asset_id],
     inputs=transfer_input,
     metadata=metadata,
     recipients= [([reseller.public_key],150),([producer.public_key], 2800), ]

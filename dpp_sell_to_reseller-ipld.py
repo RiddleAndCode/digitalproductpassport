@@ -1,5 +1,6 @@
 from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
+from ipld import multihash, marshal
 
 # create wallets for all involved parties
 
@@ -12,7 +13,7 @@ producer, buyer, reseller = generate_keypair(), generate_keypair(), generate_key
 # create certificate
 
 asset = {
-    'data': {
+    'data': multihash(marshal({
         "GTIN":{
             "GIAI":"(8004)9010381300003022",
             "ManufacturingSerialID":"141-09-061",
@@ -59,14 +60,14 @@ asset = {
         "C93": "0.3361",
         "Z02": "2019-05-30T09:30:10-01:00"
         }
-    }
+    }))
 }
 
-metadata = {
+metadata = multihash(marshal({
     'units': '300',
     'carbonOffset': '560',
     'type': 'KG'
-}
+}))
 
 # alternatively asset as ipld link
 
@@ -79,9 +80,9 @@ metadata = {
  }
 '''
 
-server = 'https://test.ipdb.io'
-#server = 'http://localhost:9984'
-#server = 'https://node1-testnet.rddl.io'
+#server = 'https://test.ipdb.io'
+#server = 'http://node1-rddl-testnet.twilightparadox.com:9984'
+server = 'http://localhost:9984'
 api = 'api/v1/transactions'
 plmnt = Planetmint(server)
 
@@ -122,10 +123,10 @@ transfer_input = {
     'owners_before': output['public_keys']
 }
 
-metadata = {
+metadata = multihash(marshal({
     'units': 5,
     'type': 'KG'
-}
+}))
 prepared_transfer_tx = plmnt.transactions.prepare(
     operation='TRANSFER',
     asset=transfer_asset,
@@ -163,10 +164,10 @@ transfer_input = {
     'owners_before': output['public_keys']
 }
 
-metadata = {
+metadata = multihash(marshal({
     'units': 15,
     'type': 'KG'
-}
+}))
 prepared_transfer_tx = plmnt.transactions.prepare(
     operation='TRANSFER',
     asset=transfer_asset,
